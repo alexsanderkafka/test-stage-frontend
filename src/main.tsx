@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 function App(){
 
-  const [activeTab, setActiveTab] = useState('processes');
+  const [activeTab, setActiveTab] = useState<string>('areas');
   //const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   function renderContent() {
@@ -18,7 +18,7 @@ function App(){
       case 'processes':
         return <ProcessView />;
       default:
-        return <ProcessView />;
+        return <AreaManager />;
     }
   }
 

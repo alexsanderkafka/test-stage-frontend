@@ -11,8 +11,8 @@ interface SidebarProps {
 function Sidebar({ activeTab, setActiveTab, isOpen, toggle }: SidebarProps) {
 
     const menuItems: any = [
-        { id: 'processes', label: 'Mapa de Processo', icon: Network},
-        { id: 'areas', label: 'Áreas e Setores', icon: Layers}
+        { id: 'areas', label: 'Áreas e Setores', icon: Layers},
+        { id: 'processes', label: 'Mapa de Processo', icon: Network}
     ];
 
     return(
