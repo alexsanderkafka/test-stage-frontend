@@ -1,126 +1,89 @@
-import { File, FileText, GitBranch, Monitor, Plus, Trash2, User, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { FileText, GitBranch, Monitor, Trash2, User, X } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import type { Process } from "../types/process";
+import Card from "./Card";
+import AddCard from "./cards/AddCard";
 
 interface ProcessTreeProps{
     processId: string;
     onClose: () => void;
 }
 
-export interface Process {
-  id: string;
-  areaId: string;
-  parentId: string | null;
-  name: string;
-  type: ProcessType;
-  description?: string;
-  tools?: string;
-  owners?: string;
-  documentation?: string;
-  // Visual position for initial load if needed, but reactflow handles this mostly
-  position?: { x: number; y: number }; 
-}
-
-export type ProcessType = 'manual' | 'systemic';
-
-interface CardProps {
-    children: React.ReactNode;
-    className?: string;
-}
-
-function Card({ children, className }: CardProps) {
-    return(
-        <motion.div
-        layout
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className={`bg-[#383838] border border-[#4A4A4A] rounded-xl p-4 shadow-lg flex items-center justify-between gap-3 min-w-[200px] ${className}`}
-        >
-            {children}
-        </motion.div>
-    );
-}
-
 function BranchLine(){
     return <div className="w-px h-8 bg-[#4A4A4A] mx-auto my-2" />
 }
 
-interface AddCardProps {
-    label: string;
-    onClick: () => void;
-}
-
-function AddCard({ label, onClick }: AddCardProps) {
-    return(
-        <motion.button
-        layout
-        onClick={onClick}
-        className="w-full bg-[#383838]/50 border-2 border-dashed border-[#4A4A4A] hover:border-indigo-500/50 hover:bg-[#454545] text-zinc-400 hover:text-indigo-400 rounded-xl p-3 flex items-center justify-center gap-2 transition-all group"
-        >
-            <div className="bg-[#505050] group-hover:bg-indigo-500/20 rounded-lg p-1 transition-colors">
-                <Plus size={16} />
-            </div>
-            <span className="text-sm font-medium">{label}</span>
-        </motion.button>
-    )
-}
-
 function ProcessTree({ processId, onClose }: ProcessTreeProps) {
-    console.log(processId);
-    console.log(onClose);
 
     const processes: Process[] = [
-        { 
-          id: 'p1', 
-          areaId: '1', 
-          parentId: null, 
-          name: 'Recrutamento e Seleção', 
-          type: 'manual', 
-          description: 'Processo de contratação de novos colaboradores',
-          owners: 'Ana Silva',
-          tools: 'LinkedIn, Gupy',
-          documentation: 'Procedimento RH-001'
-        },
-        { 
-          id: 'p2', 
-          areaId: '1', 
-          parentId: 'p1', 
-          name: 'Triagem de Currículos', 
-          type: 'manual', 
+    { 
+      id: 'p1', 
+      areaId: '1', 
+      subprocesses: [
+        {
+          id: '1',
+          name: 'Triagem de Currículos',
+          type: 'manual',
           description: 'Análise inicial dos candidatos',
-          owners: 'João Paulo',
-          tools: 'Gupy',
-          documentation: 'Checklist de requisitos'
         },
-        { 
-          id: 'p3', 
-          areaId: '1', 
-          parentId: 'p1', 
-          name: 'Entrevista Técnica', 
-          type: 'manual', 
-          description: 'Avaliação de hard skills',
-          owners: 'Tech Leads',
-          tools: 'Google Meet',
-          documentation: 'Roteiro de entrevista'
+        {
+          id: '2',
+          name: 'Estudo de Caso',
+          type: 'manual',
+          description: 'Teste prático para avaliar habilidades dos candidatos',
         },
-        { 
-          id: 'p4', 
-          areaId: '2', 
-          parentId: null, 
-          name: 'Deploy de Aplicação', 
-          type: 'systemic', 
-          description: 'Processo automatizado de deploy',
-          owners: 'DevOps Team',
-          tools: 'GitHub Actions, AWS',
-          documentation: 'Wiki Eng-Deploy'
+        {
+          id: '3',
+          name: 'Entrevista Técnica',
+          type: 'manual',
+          description: 'Teste prático para avaliar habilidades dos candidatos',
+        },
+      ],
+      name: 'Recrutamento e Seleção', 
+      type: 'manual', 
+      description: 'Processo de contratação de novos colaboradores',
+      owners: ['Ana Silva'],
+      tools: ['LinkedIn', 'Gupy'],
+      documentation: ['Procedimento RH-001']
+    },
+    { 
+      id: 'p4', 
+      areaId: '2', 
+      subprocesses: [
+        {
+        id: '4',
+        name: 'Build da Aplicação',
+        type: 'systemic',
+        description: 'Compilar o código fonte e gerar os artefatos da aplicação',
       },
+      {
+        id: '5',
+        name: 'Execução de Testes Automatizados',
+        type: 'systemic',
+        description: 'Executar testes unitários e de integração',
+      },
+      {
+        id: '6',
+        name: 'Criação da Imagem Docker',
+        type: 'systemic',
+        description: 'Gerar e publicar a imagem Docker no registry',
+      },
+      ], 
+      name: 'Deploy de Aplicação', 
+      type: 'systemic', 
+      description: 'Processo automatizado de deploy',
+      owners: ['DevOps Team', 'Claudia'],
+      tools: ['GitHub Actions', 'AWS'],
+      documentation: ['Wiki Eng-Deploy']
+    },
     ]
 
     const process = processes.find(p => p.id === processId);
-    const subprocesses = processes.filter(p => p.parentId === processId);
 
-    const owners = process?.owners ? process.owners.split(',').map(s => s.trim()).filter(Boolean) : [];
-    const tools = process?.tools ? process.tools.split(',').map(s => s.trim()).filter(Boolean) : [];
-    const docs = process?.documentation ? process.documentation.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const owners = process?.owners;
+    const tools = process?.tools;
+    const docs = process?.documentation;
+    const subprocesses = process?.subprocesses || [];
 
     return(
         <div className="fixed inset-0 z-50 bg-[#252525]/95 flex flex-col overflow-hidden">
@@ -157,11 +120,12 @@ function ProcessTree({ processId, onClose }: ProcessTreeProps) {
 
                     <div className="relative w-full max-w-4xl h-8">
                         <div className="absolute left-1/2 -translate-x-1/2 w-px h-full bg-[#4A4A4A]" />
+                        
                         <div className="absolute bottom-0 left-[12.5%] right-[12.5%] h-px bg-[#4A4A4A]" />
-                        <div className="absolute bottom-0 left-[12.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> {/* Subprocesses */}
-                        <div className="absolute bottom-0 left-[37.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> {/* People */}
-                        <div className="absolute bottom-0 right-[37.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> {/* Tools */}
-                        <div className="absolute bottom-0 right-[12.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> {/* Docs */}
+                        <div className="absolute bottom-0 left-[12.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" />
+                        <div className="absolute bottom-0 left-[37.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> 
+                        <div className="absolute bottom-0 right-[37.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> 
+                        <div className="absolute bottom-0 right-[12.5%] w-px h-4 bg-[#4A4A4A] -translate-y-4" /> 
                     </div>
                 
                     <div className="grid grid-cols-4 gap-8 w-full max-w-6xl mt-4 items-start">
@@ -194,7 +158,7 @@ function ProcessTree({ processId, onClose }: ProcessTreeProps) {
                                 Pessoas / Responsáveis
                             </div>
                             <AnimatePresence>
-                                {owners.map((owner, idx) => (
+                                {owners!.map((owner, idx) => (
                                     <Card
                                     key={idx}
                                     className="w-full"
@@ -221,7 +185,7 @@ function ProcessTree({ processId, onClose }: ProcessTreeProps) {
                                 Ferramentas
                             </div>
                             <AnimatePresence>
-                                {tools.map((tool, idx) => (
+                                {tools!.map((tool, idx) => (
                                     <Card
                                     key={idx}
                                     className="w-full"
@@ -248,7 +212,7 @@ function ProcessTree({ processId, onClose }: ProcessTreeProps) {
                                 Documentação
                             </div>
                             <AnimatePresence>
-                                {docs.map((doc, idx) => (
+                                {docs!.map((doc, idx) => (
                                     <Card
                                     key={idx}
                                     className="w-full"

@@ -25,7 +25,7 @@ function App(){
 
   return (
     <div className='flex h-screen bg-[#252525] text-white font-sans overflow-hidden'>
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={true} toggle={() => {}} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={true} />
 
       <main className='flex-1 flex flex-col overflow-hidden relative'>
         <AnimatePresence mode='wait'>
