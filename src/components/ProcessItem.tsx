@@ -10,9 +10,10 @@ interface ProcessItemProps {
   level?: number;
   viewingTreeId?: string | null; 
   setViewingTreeId?: (id: string | null) => void;
+  handleEditingProcess: () => void;
 }
 
-function ProcessItem({ process, level = 0, setViewingTreeId }: ProcessItemProps) {
+function ProcessItem({ process, level = 0, setViewingTreeId, handleEditingProcess}: ProcessItemProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const areas: Area[] = [
@@ -83,7 +84,9 @@ function ProcessItem({ process, level = 0, setViewingTreeId }: ProcessItemProps)
             <Plus size={16}/>
           </button> 
 
-          <button onClick={() => {}}
+          <button onClick={() => {
+            handleEditingProcess();
+          }}
           className="p-2 text-zinc-400 hover:text-blue-400 hover:bg-[#505050] rounded-lg"
           >
             <Edit2 size={16}/>

@@ -1,13 +1,34 @@
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import ProcessTree from "../components/ProcessTree";
-import type { Process } from "../types/process";
+import type { Process, ProcessType } from "../types/process";
 import ProcessItem from "../components/ProcessItem";
 import PlusButton from "../components/PlusButton";
+import ProcessFormModal from "../components/modals/ProcessFormModal";
+import type Area from "../types/area";
 
 function ProcessView() {
 
+  const areas: Area[] = [
+      { id: '1', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
+      { id: '2', name: 'Tecnologia', description: 'Infraestrutura e desenvolvimento' },
+      { id: '3', name: 'Financeiro', description: 'Contas a pagar e receber' },
+      { id: '4', name: 'Financeiro', description: 'Contas a pagar e receber' },
+      { id: '5', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
+      { id: '6', name: 'Tecnologia', description: 'Infraestrutura e desenvolvimento' },
+      { id: '7', name: 'Financeiro', description: 'Contas a pagar e receber' },
+      { id: '8', name: 'Financeiro', description: 'Contas a pagar e receber' }
+    ]
+
   const [viewingTreeId, setViewingTreeId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    areaId: areas[0]?.id || "",
+    type: "manual" as ProcessType,
+    description: "",
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProcess, setEditingProcess] =useState<Process | null>(null);
 
   const processes: Process[] = [
     { 
@@ -72,6 +93,27 @@ function ProcessView() {
     },
   ]
 
+  function handleAdd () {
+    setEditingProcess(null);
+    
+    setFormData({
+      ...formData,
+      areaId: areas[0]?.id || "",
+    });
+    setIsModalOpen(true);
+  }
+
+  function handleEditingProcess(process: Process) {
+    setEditingProcess(process);
+    setFormData({
+      name: process.name,
+      areaId: process.areaId,
+      type: process.type,
+      description: process.description || "",
+    });
+    setIsModalOpen(true);
+  }
+  
   return (
     <div className="h-full flex flex-col bg-[#252525]">
       <div className="flex items-center justify-between px-8 py-6 border-b border-[#4A4A4A]">
@@ -85,14 +127,16 @@ function ProcessView() {
               <h1 className="text-3xl font-bold text-white">List de Processos</h1>
               <p className="text-zinc-400 mt-2">Gerencie a hierarquia de processos da sua organização.</p>
             </div>
-            <PlusButton onClick={() => {}} label="Novo Processo" />
+            <PlusButton onClick={() => {
+              handleAdd();
+            }} label="Novo Processo" />
           </div>
 
           <div className="">
             {processes.length > 0 ? (
               <div className="space-y-2">
                 {processes.map((process: Process) => (
-                  <ProcessItem key={process.id} process={process} viewingTreeId={viewingTreeId} setViewingTreeId={setViewingTreeId}/>
+                  <ProcessItem key={process.id} process={process} viewingTreeId={viewingTreeId} setViewingTreeId={setViewingTreeId} handleEditingProcess={() => handleEditingProcess(process)}/>
                 ))}
               </div>
             ) : (
@@ -111,6 +155,7 @@ function ProcessView() {
             )}
           </AnimatePresence>
 
+          <ProcessFormModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} formData={formData} setFormData={setFormData} editingProcess={editingProcess}/>
         </div>
       </div>
     </div>
