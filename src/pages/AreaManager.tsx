@@ -9,8 +9,7 @@ import type Area from "../types/area";
 function AreaManager() {
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [editingArea, setEditingArea] = useState<{ id: string, name: string, description: string } | null>(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
+  const [editingArea, setEditingArea] = useState<Area | null>(null);
 
   const areas: Area[] = [
     { id: '1', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
@@ -25,7 +24,6 @@ function AreaManager() {
 
   function openEdit(area: Area) {
     setEditingArea(area);
-    setFormData({ name: area.name, description: area.description });
     setIsModalOpen(true);
   }
 
@@ -63,7 +61,10 @@ function AreaManager() {
         )}
       </div>
 
-      <AreaFormModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} editingArea={editingArea} formData={formData} setFormData={setFormData}/>
+      {isModalOpen && (
+        <AreaFormModal setIsModalOpen={setIsModalOpen} editingArea={editingArea} />
+      )}
+      
     </div>
   )
 }

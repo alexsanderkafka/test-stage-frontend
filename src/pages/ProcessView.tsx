@@ -1,32 +1,15 @@
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import ProcessTree from "../components/ProcessTree";
-import type { Process, ProcessType } from "../types/process";
+import type { Process } from "../types/process";
 import ProcessItem from "../components/ProcessItem";
 import PlusButton from "../components/PlusButton";
 import ProcessFormModal from "../components/modals/ProcessFormModal";
-import type Area from "../types/area";
 
 function ProcessView() {
 
-  const areas: Area[] = [
-      { id: '1', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
-      { id: '2', name: 'Tecnologia', description: 'Infraestrutura e desenvolvimento' },
-      { id: '3', name: 'Financeiro', description: 'Contas a pagar e receber' },
-      { id: '4', name: 'Financeiro', description: 'Contas a pagar e receber' },
-      { id: '5', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
-      { id: '6', name: 'Tecnologia', description: 'Infraestrutura e desenvolvimento' },
-      { id: '7', name: 'Financeiro', description: 'Contas a pagar e receber' },
-      { id: '8', name: 'Financeiro', description: 'Contas a pagar e receber' }
-    ]
-
   const [viewingTreeId, setViewingTreeId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    areaId: areas[0]?.id || "",
-    type: "manual" as ProcessType,
-    description: "",
-  });
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProcess, setEditingProcess] =useState<Process | null>(null);
 
@@ -95,22 +78,11 @@ function ProcessView() {
 
   function handleAdd () {
     setEditingProcess(null);
-    
-    setFormData({
-      ...formData,
-      areaId: areas[0]?.id || "",
-    });
     setIsModalOpen(true);
   }
 
   function handleEditingProcess(process: Process) {
     setEditingProcess(process);
-    setFormData({
-      name: process.name,
-      areaId: process.areaId,
-      type: process.type,
-      description: process.description || "",
-    });
     setIsModalOpen(true);
   }
   
@@ -155,7 +127,9 @@ function ProcessView() {
             )}
           </AnimatePresence>
 
-          <ProcessFormModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} formData={formData} setFormData={setFormData} editingProcess={editingProcess}/>
+          {isModalOpen && (
+            <ProcessFormModal setIsModalOpen={setIsModalOpen} editingProcess={editingProcess}/>
+          )}
         </div>
       </div>
     </div>

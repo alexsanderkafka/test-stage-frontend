@@ -1,18 +1,25 @@
 import { AnimatePresence, motion } from "motion/react";
+import type Area from "../../types/area";
+import { useEffect, useState } from "react";
 
 interface AreaFormModalProps{
-    isModalOpen: boolean;
     setIsModalOpen: (isOpen: boolean) => void;
-    editingArea: any;
-    formData: any;
-    setFormData: (data: any) => void;
+    editingArea: Area | null;
 }
 
-function AreaFormModal({ isModalOpen, setIsModalOpen, editingArea, formData, setFormData }: AreaFormModalProps){
+function AreaFormModal({ setIsModalOpen, editingArea }: AreaFormModalProps){
+
+  const [formData, setFormData] = useState({ name: '', description: '' });
+
+  useEffect(() => {
+    if (editingArea) {
+      setFormData({ name: editingArea.name, description: editingArea.description });
+    }
+  }, [])
     
-    return(
+  return(
         <AnimatePresence>
-        {isModalOpen && (
+        
           <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
             <motion.div
             initial={{ opacity: 0 }}
@@ -69,11 +76,9 @@ function AreaFormModal({ isModalOpen, setIsModalOpen, editingArea, formData, set
                 </div>
               </form>
             </motion.div>
-          </div> 
-        )
-        }
+          </div>
       </AnimatePresence>
-    );
+  );
 }
 
 export default AreaFormModal;

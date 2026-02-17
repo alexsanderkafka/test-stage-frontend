@@ -1,16 +1,15 @@
-import { AnimatePresence, motion} from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import type Area from "../../types/area";
 import { Monitor, User } from "lucide-react";
+import type { Process, ProcessType } from "../../types/process";
+import { useEffect, useState } from "react";
 
 interface ProcessFormModalProps {
-    isModalOpen: boolean;
     setIsModalOpen: (isOpen: boolean) => void;
-    editingProcess: any;
-    formData: any;
-    setFormData: (data: any) => void;
+    editingProcess: Process | null;
 }
 
-function ProcessFormModal({ isModalOpen, setIsModalOpen, editingProcess, formData, setFormData }: ProcessFormModalProps) {
+function ProcessFormModal({ setIsModalOpen, editingProcess}: ProcessFormModalProps) {
 
     const areas: Area[] = [
         { id: '1', name: 'Recursos Humanos', description: 'Gestão de pessoas e cultura' },
@@ -23,13 +22,31 @@ function ProcessFormModal({ isModalOpen, setIsModalOpen, editingProcess, formDat
         { id: '8', name: 'Financeiro', description: 'Contas a pagar e receber' }
     ]
 
+    const [formData, setFormData] = useState({
+        name: "",
+        areaId: areas[0]?.id || "",
+        type: "manual" as ProcessType,
+        description: "",
+    });
+
+    useEffect(() => {
+        if (editingProcess) {
+            console.log(editingProcess);
+            setFormData({
+                name: editingProcess.name,
+                areaId: editingProcess.areaId,
+                type: editingProcess.type,
+                description: editingProcess.description || "",
+            });
+        }        
+    }, [])
+    
     function handleSubmit() {
         console.log("submit");
     }
 
     return (
         <AnimatePresence>
-            {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <motion.div
                     initial={{ opacity: 0 }}
@@ -130,7 +147,6 @@ function ProcessFormModal({ isModalOpen, setIsModalOpen, editingProcess, formDat
                         </form>
                     </motion.div>
                 </div>
-            )}
         </AnimatePresence>
     )
 }
