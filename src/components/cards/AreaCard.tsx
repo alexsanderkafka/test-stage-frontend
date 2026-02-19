@@ -1,6 +1,9 @@
 import { motion } from "motion/react";
 import type Area from "../../types/area";
 import { Edit2, Layers, Trash2 } from "lucide-react";
+import { useAuthStore } from "../../context/AuthContext";
+import { api } from "../../api";
+import { toast } from "sonner";
 
 interface AreaCardProps {
     area: Area;
@@ -8,10 +11,27 @@ interface AreaCardProps {
 }
 
 function AreaCard({ area, openEdit}: AreaCardProps) {
-    return(
+
+  const token = useAuthStore((state) => state.token);
+  
+  const deleteArea = () => {
+    
+    api.delete(`/area/${area.externalId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((res: any) => {
+      if(res.status === 204) toast.success('Área deletada com sucesso!');
+    }).catch((err: any) => {
+      if(err.response.status === 404) toast.error(err.response.data.message);
+    });
+
+  }
+
+  return(
         <motion.div
             layout
-            key={area.id}
+            key={area.externalId}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -25,7 +45,7 @@ function AreaCard({ area, openEdit}: AreaCardProps) {
                   <Edit2 size={16} />
                 </button>
                 <button
-                onClick={() => {}}
+                onClick={() => deleteArea()}
                 className="p-2 bg-[#454545] text-zinc-300 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
                 >
                   <Trash2 size={16} />
@@ -44,7 +64,6 @@ function AreaCard({ area, openEdit}: AreaCardProps) {
               </p>
 
               <div className="flex items-center text-xs font-medium text-zinc-500 mt-auto pt-4 border-t border-[#4A4A4A]">
-                <span>ID: {area.id}</span>
               </div>
         </motion.div>
     );

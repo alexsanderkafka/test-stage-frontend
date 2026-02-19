@@ -1,4 +1,4 @@
-export interface Subprocess {
+export interface Tool {
     externalId: string;
     name: string;
 }

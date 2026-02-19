@@ -1,80 +1,38 @@
 import { AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProcessTree from "../components/ProcessTree";
-import type { Process } from "../types/process";
 import ProcessItem from "../components/ProcessItem";
 import PlusButton from "../components/PlusButton";
 import ProcessFormModal from "../components/modals/ProcessFormModal";
+import type Process from "../types/process";
+import { useAuthStore } from "../context/AuthContext";
+import { api } from "../api";
 
 function ProcessView() {
 
-  const [viewingTreeId, setViewingTreeId] = useState<string | null>(null);
+  const token = useAuthStore((state) => state.token);
+  const userExternalId = useAuthStore((state) => state.userExternalId);
+
+  const [selectedProcess, setSelectedProcess] = useState<Process | null>(null);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProcess, setEditingProcess] =useState<Process | null>(null);
 
-  const processes: Process[] = [
-    { 
-      id: 'p1', 
-      areaId: '1', 
-      subprocesses: [
-        {
-          id: '1',
-          name: 'Triagem de Currículos',
-          type: 'manual',
-          description: 'Análise inicial dos candidatos',
-        },
-        {
-          id: '2',
-          name: 'Estudo de Caso',
-          type: 'manual',
-          description: 'Teste prático para avaliar habilidades dos candidatos',
-        },
-        {
-          id: '3',
-          name: 'Entrevista Técnica',
-          type: 'manual',
-          description: 'Teste prático para avaliar habilidades dos candidatos',
-        },
-      ],
-      name: 'Recrutamento e Seleção', 
-      type: 'manual', 
-      description: 'Processo de contratação de novos colaboradores',
-      owners: ['Ana Silva'],
-      tools: ['LinkedIn', 'Gupy'],
-      documentation: ['Procedimento RH-001']
-    },
-    { 
-      id: 'p4', 
-      areaId: '2', 
-      subprocesses: [
-        {
-        id: '4',
-        name: 'Build da Aplicação',
-        type: 'systemic',
-        description: 'Compilar o código fonte e gerar os artefatos da aplicação',
-      },
-      {
-        id: '5',
-        name: 'Execução de Testes Automatizados',
-        type: 'systemic',
-        description: 'Executar testes unitários e de integração',
-      },
-      {
-        id: '6',
-        name: 'Criação da Imagem Docker',
-        type: 'systemic',
-        description: 'Gerar e publicar a imagem Docker no registry',
-      },
-      ], 
-      name: 'Deploy de Aplicação', 
-      type: 'systemic', 
-      description: 'Processo automatizado de deploy',
-      owners: ['DevOps Team', 'Claudia'],
-      tools: ['GitHub Actions', 'AWS'],
-      documentation: ['Wiki Eng-Deploy']
-    },
-  ]
+  const [processes, setProcesses] = useState<Process[]>([]);
+
+  useEffect(() => {
+    getAllProcess();
+  }, [])
+
+  const getAllProcess = () => {
+    api.get(`/process/${userExternalId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((res: any) => {
+      setProcesses(res.data);
+    });
+  }
 
   function handleAdd () {
     setEditingProcess(null);
@@ -108,7 +66,7 @@ function ProcessView() {
             {processes.length > 0 ? (
               <div className="space-y-2">
                 {processes.map((process: Process) => (
-                  <ProcessItem key={process.id} process={process} viewingTreeId={viewingTreeId} setViewingTreeId={setViewingTreeId} handleEditingProcess={() => handleEditingProcess(process)}/>
+                  <ProcessItem key={process.externalId} process={process} setSelectedProcess={setSelectedProcess} handleEditingProcess={() => handleEditingProcess(process)}/>
                 ))}
               </div>
             ) : (
@@ -119,10 +77,10 @@ function ProcessView() {
           </div>
 
           <AnimatePresence>
-            {viewingTreeId && (
+            {selectedProcess && (
               <ProcessTree 
-              processId={viewingTreeId}
-              onClose={() => setViewingTreeId(null)}
+              process={selectedProcess}
+              onClose={() => setSelectedProcess(null)}
               />
             )}
           </AnimatePresence>

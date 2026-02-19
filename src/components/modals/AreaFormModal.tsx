@@ -1,6 +1,10 @@
 import { AnimatePresence, motion } from "motion/react";
 import type Area from "../../types/area";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { api } from "../../api";
+import { toast } from "sonner";
+import { useAuthStore } from "../../context/AuthContext";
 
 interface AreaFormModalProps{
     setIsModalOpen: (isOpen: boolean) => void;
@@ -8,14 +12,57 @@ interface AreaFormModalProps{
 }
 
 function AreaFormModal({ setIsModalOpen, editingArea }: AreaFormModalProps){
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
 
-  const [formData, setFormData] = useState({ name: '', description: '' });
+  const token = useAuthStore((state) => state.token);
+  const userExternalId = useAuthStore((state) => state.userExternalId);
 
   useEffect(() => {
     if (editingArea) {
-      setFormData({ name: editingArea.name, description: editingArea.description });
+      reset({
+        name: editingArea.name,
+        description: editingArea.description,
+      });
     }
-  }, [])
+  }, [editingArea, reset])
+
+  const onSubmit = (data: any) => {
+    
+    api.post(`/area/${userExternalId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((res: any) => {
+      
+      if(res.status === 201) toast.success('Área criada com sucesso!');
+
+      setIsModalOpen(false);
+
+    }).catch((err: any) => {
+      console.log(err.response.data.message)
+      setIsModalOpen(false);
+    });
+
+  }
+
+  const editArea = (data: any) => {
+
+    api.put(`/area/${editingArea?.externalId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((res: any) => {
+      
+      if(res.status === 200) toast.success('Área atualizada com sucesso!');
+
+      setIsModalOpen(false);
+
+    }).catch((err: any) => {
+      console.log(err.response.data.message)
+      setIsModalOpen(false);
+    });
+
+  }
     
   return(
         <AnimatePresence>
@@ -37,26 +84,34 @@ function AreaFormModal({ setIsModalOpen, editingArea }: AreaFormModalProps){
             >
               <h2 className='text-2xl font-bold text-white mb-6'>Nova Área</h2>
 
-              <form onSubmit={() => {}} className='space-y-6'>
+              <form onSubmit={handleSubmit(editingArea ? editArea : onSubmit)} className='space-y-6'>
                 <div>
                   <label className='block text-sm font-medium text-zinc-400 mb-2'>Nome da Área</label>
                   <input 
+                  {...register('name', { 
+                    required: 'Nome é obrigatório'
+                  })}
                   type="text" 
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className='w-full bg-[#454545] border border-[#555] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-zinc-500'
                   placeholder='Ex: Recursos Humanos'
                   />
+                  {errors.name && (
+                    <p className="text-red-400 text-xs mt-1">{errors.name.message as string}</p>
+                  )}
                 </div>
                 <div>
                   <label className='block text-sm font-medium text-zinc-400 mb-2'>Descrição</label>
                   <input 
+                  {...register('description', { 
+                    required: 'Descrição é obrigatório'
+                  })}
                   type="text" 
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className='w-full bg-[#454545] border border-[#555] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-zinc-500'
                   placeholder='Descreva as responsabilidades desta área...'
                   />
+                  {errors.description && (
+                    <p className="text-red-400 text-xs mt-1">{errors.description.message as string}</p>
+                  )}
                 </div>
 
                 <div className='flex justify-end gap-3 pt-4'>

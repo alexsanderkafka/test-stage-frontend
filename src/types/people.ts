@@ -1,4 +1,4 @@
-export interface Subprocess {
+export interface People {
     externalId: string;
     name: string;
 }

@@ -1,5 +1,8 @@
+import type Process from "./process";
+
 export default interface Area {
-  id: string;
+  externalId: string;
   name: string;
   description: string;
+  processes: Process[];
 }

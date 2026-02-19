@@ -1,4 +1,4 @@
-export interface Subprocess {
+export interface Documentation {
     externalId: string;
     name: string;
 }

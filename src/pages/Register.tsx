@@ -1,16 +1,39 @@
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api';
+import { toast } from 'sonner';
 
 function Register(){
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm();
-    //const login = useStore((state) => state.login);
-    //const navigate = useNavigate();
+    
+    const navigate = useNavigate();
 
     const password = watch('password');
     const email = watch('email');
 
     const onSubmit = async (data: any) => {
+
+        //ativar alguma coisa para loading no button de submit
+
+        api.post("/auth/register", data).then((res: any) => {
+            const tokenJwt: string = res.data.accessToken;
+            const refreshToken: string = res.data.refreshToken;
+            const email: string = res.data.email;
+            const userExternalId: string = res.data.userExternalId;
+
+            localStorage.setItem("token", tokenJwt);
+            localStorage.setItem("refreshToken", refreshToken);
+            localStorage.setItem("email", email);
+            localStorage.setItem("userExternalId", userExternalId);
+
+            navigate("/home");
+
+        }).catch((err: any) => {
+            if(err.response.status === 409) toast.error(err.response.data.message);
+
+            if(err.response.status === 401) toast.error(err.response.data.message);
+        });
         
     };
 
