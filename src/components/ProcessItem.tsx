@@ -3,6 +3,7 @@ import type Process from "../types/process";
 import { useAuthStore } from "../context/AuthContext";
 import { toast } from "sonner";
 import { api } from "../api";
+import { useProcessStore } from "../context/ProcessContext";
 
 interface ProcessItemProps {
   process: Process;
@@ -14,6 +15,9 @@ interface ProcessItemProps {
 function ProcessItem({ process, level = 0, setSelectedProcess, handleEditingProcess}: ProcessItemProps) {
 
   const token = useAuthStore((state) => state.token);
+  const userExternalId = useAuthStore((state) => state.userExternalId);
+
+  const getAllProcess = useProcessStore((state) => state.getAllProcess);
 
   const deleteProcess = () => {
     api.delete(`/process/${process.externalId}`, {
@@ -22,6 +26,8 @@ function ProcessItem({ process, level = 0, setSelectedProcess, handleEditingProc
       }
     }).then((res: any) => {
       if(res.status === 204) toast.success('Processo deletado com sucesso!');
+
+      getAllProcess(userExternalId!, token!);
     }).catch((err: any) => {
       if(err.response.status === 404) toast.error(err.response.data.message);
     });

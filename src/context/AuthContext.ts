@@ -44,10 +44,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         localStorage.clear();
 
         set({
-            token: null,
-            refreshToken: null,
-            email: null,
-            userExternalId: null
+            token: "",
+            refreshToken: "",
+            email: "",
+            userExternalId: ""
         });
     }
 

@@ -1,5 +1,7 @@
-import { Layers, Network } from 'lucide-react';
+import { Layers, Network, LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useAuthStore } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
     activeTab: string;
@@ -8,6 +10,11 @@ interface SidebarProps {
 }
 
 function Sidebar({ activeTab, setActiveTab, isOpen }: SidebarProps) {
+
+    const email = useAuthStore((state) => state.email);
+    const logout = useAuthStore((state) => state.logout);
+
+    const navigate = useNavigate();
 
     const menuItems: any = [
         { id: 'areas', label: 'Áreas e Setores', icon: Layers},
@@ -39,20 +46,23 @@ function Sidebar({ activeTab, setActiveTab, isOpen }: SidebarProps) {
                         ))}
                     </nav>
 
-                    <div className='p-4 border-t border-[#4A4A4A]'> 
-                        <div className='flex items-center gap-3 px-2 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-lg hover:bg-[#454545]'>
+                    <div className='p-1 border-t border-[#4A4A4A]   '> 
+                        <button 
+                        onClick={() => {
+                            logout();
+                            navigate('/');
+                        }}
+                        className='flex items-center gap-3 px-2 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-lg hover:bg-[#454545]'>
                             <div className='w-8 h-8 rounded-full bg-[#252525] border border-[#4A4A4A] flex items-center justify-center text-xs font-bold text-zinc-300'>
-                                AD
+                                {email?.charAt(0).toUpperCase()}
                             </div>
-                            <div className='flex flex-col'>
-                                <span className='text-sm font-medium text-zinc-200'>
-                                    Administrador
-                                </span>
-                                <span className='text-[10px] text-zinc-500'>
-                                    admin@empresa.com
-                                </span>
-                            </div>
-                        </div>
+                            <span className='text-sm font-medium text-zinc-200'>
+                                {email}
+                            </span>
+                            
+                            <LogOut size={18}/>
+                            
+                        </button>
                     </div>
                 </div>
             </motion.aside>

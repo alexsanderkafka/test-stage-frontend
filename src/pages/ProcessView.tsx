@@ -6,7 +6,7 @@ import PlusButton from "../components/PlusButton";
 import ProcessFormModal from "../components/modals/ProcessFormModal";
 import type Process from "../types/process";
 import { useAuthStore } from "../context/AuthContext";
-import { api } from "../api";
+import { useProcessStore } from "../context/ProcessContext";
 
 function ProcessView() {
 
@@ -18,21 +18,12 @@ function ProcessView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProcess, setEditingProcess] =useState<Process | null>(null);
 
-  const [processes, setProcesses] = useState<Process[]>([]);
+  const processes = useProcessStore((state) => state.processes);
+  const getAllProcess = useProcessStore((state) => state.getAllProcess);
 
   useEffect(() => {
-    getAllProcess();
+    getAllProcess(userExternalId!, token!);
   }, [])
-
-  const getAllProcess = () => {
-    api.get(`/process/${userExternalId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }).then((res: any) => {
-      setProcesses(res.data);
-    });
-  }
 
   function handleAdd () {
     setEditingProcess(null);
@@ -79,7 +70,7 @@ function ProcessView() {
           <AnimatePresence>
             {selectedProcess && (
               <ProcessTree 
-              process={selectedProcess}
+              externalId={selectedProcess.externalId}
               onClose={() => setSelectedProcess(null)}
               />
             )}

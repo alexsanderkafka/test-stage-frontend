@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import type Area from "../../types/area";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { api } from "../../api";
 import { toast } from "sonner";
 import { useAuthStore } from "../../context/AuthContext";
+import { useAreaStore } from "../../context/AreaContext";
 
 interface AreaFormModalProps{
     setIsModalOpen: (isOpen: boolean) => void;
@@ -16,6 +17,8 @@ function AreaFormModal({ setIsModalOpen, editingArea }: AreaFormModalProps){
 
   const token = useAuthStore((state) => state.token);
   const userExternalId = useAuthStore((state) => state.userExternalId);
+
+  const getAllAreas = useAreaStore((state) => state.getAllAreas);
 
   useEffect(() => {
     if (editingArea) {
@@ -38,6 +41,8 @@ function AreaFormModal({ setIsModalOpen, editingArea }: AreaFormModalProps){
 
       setIsModalOpen(false);
 
+      getAllAreas(userExternalId!, token!);
+      
     }).catch((err: any) => {
       console.log(err.response.data.message)
       setIsModalOpen(false);

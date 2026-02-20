@@ -7,6 +7,8 @@ import { useAuthStore } from "../../context/AuthContext";
 import { api } from "../../api";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useProcessStore } from "../../context/ProcessContext";
+import { useAreaStore } from "../../context/AreaContext";
 
 interface ProcessFormModalProps {
     setIsModalOpen: (isOpen: boolean) => void;
@@ -15,10 +17,13 @@ interface ProcessFormModalProps {
 
 function ProcessFormModal({ setIsModalOpen, editingProcess}: ProcessFormModalProps) {
 
-    const [areas, setAreas] = useState<Area[]>([]);
+    const areas = useAreaStore((state) => state.areas);
+
     const [selectedAreaId, setSelectedAreaId] = useState<string>(areas[0]?.externalId);
     const token = useAuthStore((state) => state.token);
     const userExternalId = useAuthStore((state) => state.userExternalId);
+    
+    const getAllProcess = useProcessStore((state) => state.getAllProcess);
 
     const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm({
         defaultValues: {
@@ -31,8 +36,6 @@ function ProcessFormModal({ setIsModalOpen, editingProcess}: ProcessFormModalPro
     const selectedType = watch("type");
 
     useEffect(() => {
-        getAllAreas();
-
         if (editingProcess) {
             reset({
                 name: editingProcess.name,
@@ -41,17 +44,6 @@ function ProcessFormModal({ setIsModalOpen, editingProcess}: ProcessFormModalPro
             });
         }        
     }, []);
-
-    const getAllAreas = () => {
-        api.get(`/area/${userExternalId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }).then((res: any) => {
-            setAreas(res.data);
-        });    
-    }
-
     
     const onSubmit = (data: any) => {
 
@@ -65,6 +57,8 @@ function ProcessFormModal({ setIsModalOpen, editingProcess}: ProcessFormModalPro
             if(res.status === 201) toast.success('Processo criado com sucesso!');
 
             setIsModalOpen(false);
+
+            getAllProcess(userExternalId!, token!);
 
         }).catch((err: any) => {
             console.log(err.response.data.message)

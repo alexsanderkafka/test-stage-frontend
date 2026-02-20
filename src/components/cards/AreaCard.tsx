@@ -4,6 +4,7 @@ import { Edit2, Layers, Trash2 } from "lucide-react";
 import { useAuthStore } from "../../context/AuthContext";
 import { api } from "../../api";
 import { toast } from "sonner";
+import { useAreaStore } from "../../context/AreaContext";
 
 interface AreaCardProps {
     area: Area;
@@ -13,6 +14,9 @@ interface AreaCardProps {
 function AreaCard({ area, openEdit}: AreaCardProps) {
 
   const token = useAuthStore((state) => state.token);
+  const userExternalId = useAuthStore((state) => state.userExternalId);
+  
+  const getAllAreas = useAreaStore((state) => state.getAllAreas);
   
   const deleteArea = () => {
     
@@ -22,6 +26,8 @@ function AreaCard({ area, openEdit}: AreaCardProps) {
       }
     }).then((res: any) => {
       if(res.status === 204) toast.success('Área deletada com sucesso!');
+
+      getAllAreas(userExternalId!, token!);
     }).catch((err: any) => {
       if(err.response.status === 404) toast.error(err.response.data.message);
     });

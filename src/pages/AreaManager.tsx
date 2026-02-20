@@ -5,30 +5,22 @@ import PlusButton from "../components/PlusButton";
 import AreaCard from "../components/cards/AreaCard";
 import AreaFormModal from "../components/modals/AreaFormModal";
 import type Area from "../types/area";
-import { api } from "../api";
 import { useAuthStore } from "../context/AuthContext";
+import { useAreaStore } from "../context/AreaContext";
 
 function AreaManager() {
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
-  const [areas, setAreas] = useState<Area[]>([]);
   const token = useAuthStore((state) => state.token);
   const userExternalId = useAuthStore((state) => state.userExternalId);
 
-  useEffect(() => {
-    getAllAreas();
-  }, []);
+  const areas = useAreaStore((state) => state.areas);
+  const getAllAreas = useAreaStore((state) => state.getAllAreas);
 
-  const getAllAreas = () => {
-    api.get(`/area/${userExternalId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }).then((res: any) => {
-      setAreas(res.data);
-    });
-  }
+  useEffect(() => {
+    getAllAreas(userExternalId!, token!);
+  }, [userExternalId, token, getAllAreas]);
 
   function openEdit(area: Area) {
     setEditingArea(area);

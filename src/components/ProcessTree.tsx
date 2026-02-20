@@ -6,14 +6,15 @@ import type Process from "../types/process";
 import type { People } from "../types/people";
 import type { Tool } from "../types/tool";
 import type { Documentation } from "../types/Documentations";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import AddItemModal from "./modals/AddItemModal";
 import { useAuthStore } from "../context/AuthContext";
 import { api } from "../api";
 import { toast } from "sonner";
+import { useProcessStore } from "../context/ProcessContext";
 
 interface ProcessTreeProps{
-    process: Process;
+    externalId: string;
     onClose: () => void;
 }
 
@@ -21,10 +22,17 @@ function BranchLine(){
     return <div className="w-px h-8 bg-[#4A4A4A] mx-auto my-2" />
 }
 
-function ProcessTree({ process, onClose }: ProcessTreeProps) {
+function ProcessTree({ externalId, onClose }: ProcessTreeProps) {
     
     const [addingType, setAddingType] = useState<'subprocess' | 'people' | 'tool' | 'doc' | null>(null);
     const token = useAuthStore((state) => state.token);
+    
+    const process = useProcessStore((state) => state.process);
+    const getProcess = useProcessStore((state) => state.getProcess);
+
+    useEffect(() => {
+        getProcess(externalId, token!);
+    }, [])
 
     const deleteItem = (endpoint: string, itemExternlaId: string, message: string) => {
         api.delete(`/${endpoint}/${itemExternlaId}`, {
@@ -33,6 +41,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
             }
         }).then((res: any) => {
             if(res.status === 204) toast.success(message);
+            getProcess(externalId, token!); 
         }).catch(() => {
             toast.error('Não foi possível deletar o item!');
         });
@@ -59,11 +68,11 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
                 <div className="min-w-max mx-auto flex flex-col items-center">
                     <Card className="!min-w-[300px] border-indigo-500/30 bg-[#383838]">
                         <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-lg ${process!.type === 'systemic' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                                {process.type === 'systemic' ? <Monitor size={24} /> : <User size={24} />}
+                            <div className={`p-3 rounded-lg ${process?.type === 'systemic' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                {process?.type === 'systemic' ? <Monitor size={24} /> : <User size={24} />}
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">{process!.name}</h3>
+                                <h3 className="text-lg font-bold text-white">{process?.name}</h3>
                                 <p className="text-zinc-400 text-sm">{process?.description || 'Sem descrição disponível'}</p>
                             </div>
                         </div>
@@ -87,7 +96,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
                                 Subprocessos
                             </div>
                             <AnimatePresence>
-                                {process.subprocess?.map(sub => (
+                                {process?.subprocess?.map(sub => (
                                     <Card key={sub.externalId} className="w-full">
                                         <div className="flex items-center gap-3 overflow-hidden">
                                             <div className="min-w-8 h-8 rounded bg-[#252525] flex items-center justify-center text-zinc-500">
@@ -115,7 +124,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
                                 Pessoas / Responsáveis
                             </div>
                             <AnimatePresence>
-                                {process.peoples?.map((people: People) => (
+                                {process?.peoples?.map((people: People) => (
                                     <Card
                                     key={people.externalId}
                                     className="w-full"
@@ -146,7 +155,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
                                 Ferramentas
                             </div>
                             <AnimatePresence>
-                                {process.tools?.map((tool: Tool) => (
+                                {process?.tools?.map((tool: Tool) => (
                                     <Card
                                     key={tool.externalId}
                                     className="w-full"
@@ -177,7 +186,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
                                 Documentação
                             </div>
                             <AnimatePresence>
-                                {process.documentations?.map((doc: Documentation) => (
+                                {process?.documentations?.map((doc: Documentation) => (
                                     <Card
                                     key={doc.externalId}
                                     className="w-full"
@@ -208,7 +217,7 @@ function ProcessTree({ process, onClose }: ProcessTreeProps) {
             </div>
 
             {addingType && (
-                <AddItemModal addingType={addingType} setAddingType={setAddingType} processExternalId={process.externalId}/>
+                <AddItemModal addingType={addingType} setAddingType={setAddingType} processExternalId={process!.externalId}/>
             )}
         </div>
     )
