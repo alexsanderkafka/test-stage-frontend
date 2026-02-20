@@ -17,14 +17,14 @@
 
 ![web-8](https://github.com/alexsanderkafka/test-stage-frontend/blob/main/assets_readme/screen_8.png)
 
-#Tecnologias utilizadas
+# Tecnologias utilizadas
 - Framework: React.js
 - Gerenciador de estado: zustand
 - Estilização: Tailwind
 - Roteamento: React Route
 - Build: vite
 
-#Estrutura do Projeto
+# Estrutura do Projeto
 ```text
 ├── src/
   ├── assets/ # Imagens, fontes, ícones
@@ -60,3 +60,4 @@ npm install
 ```bash
 npm run dev
 ```
+
